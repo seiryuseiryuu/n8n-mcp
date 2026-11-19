@@ -328,6 +328,25 @@ server {
 }
 ```
 
+**Nginx security updates**
+
+Update the host's Nginx package to a release with the November 18, 2026
+security fixes. The first fixed upstream releases are 1.30.7 (stable) and
+1.31.9 (mainline). For distribution packages, check the vendor advisory for
+the fixed package version and follow its instructions for restarting Nginx
+after the update. [Nginx security advisories](https://nginx.org/en/security_advisories.html)
+
+If the update must wait, disable HTTP/2 on exposed listeners to mitigate
+CVE-2026-123007 and CVE-2026-123633. The
+[configuration in this repository](../scripts/nginx-n8n-mcp.conf) omits
+`http2` from the TLS listener. Check the effective configuration with
+`sudo nginx -T` for any `http2 on;` directives that apply to the site and
+`listen ... http2` directives on shared listeners. After disabling HTTP/2,
+validate with `sudo nginx -t` and reload Nginx. Verify that TLS negotiates
+`http/1.1` when offered both `h2` and `http/1.1`, and check that
+`/health` responds over HTTPS. Apply the package update for the other
+November 18 fixes. [CERT-EU mitigation guidance](https://cert.europa.eu/publications/security-advisories/2026-022/#mitigation)
+
 **Caddy example (automatic HTTPS):**
 ```caddy
 your-domain.com {
